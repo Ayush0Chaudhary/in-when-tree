@@ -1,5 +1,7 @@
 package com.example.backend;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,8 +37,8 @@ public class PartController {
         partRepo.save(part);
     }
 
-    @GetMapping()
-    public Iterable<Part> getParts() {
-        return partRepo.findAll();
+    @GetMapping("/{id}")
+    public Optional<Part> getParts(@PathVariable Long id) {
+        return partRepo.findById(id);
     }
 }
