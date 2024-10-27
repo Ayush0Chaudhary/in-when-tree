@@ -14,9 +14,19 @@ import { Part, Order } from "../lib/models"; // Assuming Order and Part are type
 import Navbar from "@/components/nav";
 
 // Sample initial data for parts
-const partsList: Part[] = [
-  { name: "Bolt", description: "A standard bolt", quantity: 100 },
-  { name: "Nut", description: "A standard nut", quantity: 150 },
+const allPartsList: Part[] = [
+  {
+    id: Math.random().toString(),
+    name: "Bolt",
+    description: "A standard bolt",
+    quantity: 100,
+  },
+  {
+    id: Math.random().toString(),
+    name: "Nut",
+    description: "A standard nut",
+    quantity: 150,
+  },
 ];
 
 const Orders: React.FC = () => {
@@ -32,6 +42,7 @@ const Orders: React.FC = () => {
     }
 
     const newOrder: Order = {
+      id: Math.random().toString(),
       part: selectedPart,
       quantity,
     };
@@ -61,7 +72,6 @@ const Orders: React.FC = () => {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              {/* Searchable dropdown for parts */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   Part
@@ -71,15 +81,16 @@ const Orders: React.FC = () => {
                   value={selectedPart ? selectedPart.name : ""}
                   onChange={(e) =>
                     setSelectedPart(
-                      partsList.find((part) => part.name === e.target.value) ||
-                        null
+                      allPartsList.find(
+                        (part) => part.id === e.target.value
+                      ) || null
                     )
                   }
                 >
                   <option value="" disabled>
                     Select a part...
                   </option>
-                  {partsList.map((part, index) => (
+                  {allPartsList.map((part, index) => (
                     <option key={index} value={part.name}>
                       {part.name} - {part.description}
                     </option>
