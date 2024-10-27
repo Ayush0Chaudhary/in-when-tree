@@ -12,6 +12,7 @@ import {
 import { Button } from "../components/ui/button";
 import { Part, Order } from "../lib/models"; // Assuming Order and Part are types in models
 import Navbar from "@/components/nav";
+import { Separator } from "@/components/ui/separator";
 
 // Sample initial data for parts
 const allPartsList: Part[] = [
@@ -56,7 +57,7 @@ const Orders: React.FC = () => {
   return (
     <div className="bg-black min-h-screen p-8 w-screen">
       <div className="container mx-auto">
-        <Navbar />
+        <Separator />
       </div>
       <h1 className="text-2xl font-bold text-white mb-4">Orders</h1>
       <div className="mb-4 flex justify-end">
@@ -81,9 +82,8 @@ const Orders: React.FC = () => {
                   value={selectedPart ? selectedPart.name : ""}
                   onChange={(e) =>
                     setSelectedPart(
-                      allPartsList.find(
-                        (part) => part.id === e.target.value
-                      ) || null
+                      allPartsList.find((part) => part.id === e.target.value) ||
+                        null
                     )
                   }
                 >

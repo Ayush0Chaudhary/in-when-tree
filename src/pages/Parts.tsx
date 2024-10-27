@@ -60,7 +60,7 @@ const Parts: React.FC = () => {
       <div className="container mx-auto">
         <Separator />
       </div>
-      <h1 className="text-2xl font-bold mb-4">Inventory</h1>
+      <h1 className="text-2xl font-bold mb-4 text-white">Parts Inventory</h1>
       <div className="mb-4 flex justify-end">
         <Dialog>
           <DialogTrigger asChild>
