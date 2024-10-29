@@ -8,8 +8,13 @@ export interface Part {
   
   export type Order = {
     id: string;
-    part: Part;
+    //part: Part;
     quantity: number;
+    customer: string;
+    machine: string;
+    grade: string;
+    cavity: number;
+    castingWt: number;
   };
 
   export type Comp = {
