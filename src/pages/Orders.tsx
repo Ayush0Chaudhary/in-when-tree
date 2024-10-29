@@ -39,10 +39,10 @@ const Orders: React.FC = () => {
   // const [selectedPart, setSelectedPart] = useState<Part | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [quantity, setQuantity] = useState<number>(0);
-  const [machine, setMachine] = useState<string>(""); 
-  const [grade, setGrade] = useState<string>("");     
-  const [cavity, setCavity] = useState<number>(0);    
-  const [castingWt, setCastingWt] = useState<number>(0); 
+  const [machine, setMachine] = useState<string>("");
+  const [grade, setGrade] = useState<string>("");
+  const [cavity, setCavity] = useState<number>(0);
+  const [castingWt, setCastingWt] = useState<number>(0);
 
   const handleAddOrder = () => {
     // if (!selectedPart || quantity <= 0) {
@@ -66,8 +66,8 @@ const Orders: React.FC = () => {
     //setSelectedPart(null);
     setQuantity(0);
     setMachine(""); // Reset new state
-    setGrade("");   // Reset new state
-    setCavity(0);   // Reset new state
+    setGrade(""); // Reset new state
+    setCavity(0); // Reset new state
     setCastingWt(0); // Reset new state
   };
 
@@ -221,10 +221,11 @@ const Orders: React.FC = () => {
             <th className="py-2 px-4 border-b">Customer</th>
             <th className="py-2 px-4 border-b">Part</th>
             <th className="py-2 px-4 border-b">Quantity</th>
-            <th className="py-2 px-4 border-b">Machine</th>  {/* New Column */}
-            <th className="py-2 px-4 border-b">Grade</th>    {/* New Column */}
-            <th className="py-2 px-4 border-b">Cavity</th>   {/* New Column */}
-            <th className="py-2 px-4 border-b">Casting Weight</th> {/* New Column */}
+            <th className="py-2 px-4 border-b">Machine</th> {/* New Column */}
+            <th className="py-2 px-4 border-b">Grade</th> {/* New Column */}
+            <th className="py-2 px-4 border-b">Cavity</th> {/* New Column */}
+            <th className="py-2 px-4 border-b">Casting Weight</th>{" "}
+            {/* New Column */}
           </tr>
         </thead>
         <tbody>
@@ -232,11 +233,11 @@ const Orders: React.FC = () => {
             <tr key={index} className="hover:bg-gray-100">
               <td className="py-2 px-4 border-b">{order.customer}</td>
               {/* <td className="py-2 px-4 border-b">{order.part.name}</td> */}
-              <td className="py-2 px-4 border-b">{order.quantity}</td>   
-              <td className="py-2 px-4 border-b">{order.machine}</td>   
-              <td className="py-2 px-4 border-b">{order.grade}</td>   
+              <td className="py-2 px-4 border-b">{order.quantity}</td>
+              <td className="py-2 px-4 border-b">{order.machine}</td>
+              <td className="py-2 px-4 border-b">{order.grade}</td>
               <td className="py-2 px-4 border-b">{order.cavity}</td>
-              <td className="py-2 px-4 border-b">{order.castingWt}</td>                 
+              <td className="py-2 px-4 border-b">{order.castingWt}</td>
             </tr>
           ))}
         </tbody>
