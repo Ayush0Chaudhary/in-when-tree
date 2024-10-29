@@ -11,7 +11,6 @@ import {
 
 import { Button } from "../components/ui/button";
 import { Part, Order } from "../lib/models"; // Assuming Order and Part are types in models
-import Navbar from "@/components/nav";
 import { Separator } from "@/components/ui/separator";
 
 // Sample initial data for parts
