@@ -8,7 +8,7 @@ export interface Part {
   
   export type Order = {
     id: string;
-    part: Part;
+    //part: Part;
     quantity: number;
     customer: string;
     machine: string;

@@ -14,16 +14,16 @@ import { Part, Order } from "../lib/models"; // Assuming Order and Part are type
 import Navbar from "@/components/nav";
 
 // Sample initial data for parts
-const allPartsList: Part[] = [
-  {
-    name: "Bolt", description: "A standard bolt", quantity: 100,
-    id: ""
-  },
-  {
-    name: "Nut", description: "A standard nut", quantity: 150,
-    id: ""
-  },
-];
+// const allPartsList: Part[] = [
+//   {
+//     name: "Bolt", description: "A standard bolt", quantity: 100,
+//     id: "6"
+//   },
+//   {
+//     name: "Nut", description: "A standard nut", quantity: 150,
+//     id: "7"
+//   },
+// ];
 
 const customersList = [
   "John Doe",
@@ -36,7 +36,7 @@ const customersList = [
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]); // Initially empty order list
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedPart, setSelectedPart] = useState<Part | null>(null);
+  // const [selectedPart, setSelectedPart] = useState<Part | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [quantity, setQuantity] = useState<number>(0);
   const [machine, setMachine] = useState<string>(""); 
@@ -45,14 +45,14 @@ const Orders: React.FC = () => {
   const [castingWt, setCastingWt] = useState<number>(0); 
 
   const handleAddOrder = () => {
-    if (!selectedPart || quantity <= 0) {
-      alert("Please select a part and enter a valid quantity.");
-      return;
-    }
+    // if (!selectedPart || quantity <= 0) {
+    //   alert("Please select a part and enter a valid quantity.");
+    //   return;
+    // }
 
     const newOrder: Order = {
       id: Math.random().toString(),
-      part: selectedPart,
+      //part: selectedPart,
       quantity: quantity,
       customer: selectedCustomer,
       machine,
@@ -63,7 +63,7 @@ const Orders: React.FC = () => {
 
     setOrders([...orders, newOrder]);
     setIsDialogOpen(false);
-    setSelectedPart(null);
+    //setSelectedPart(null);
     setQuantity(0);
     setMachine(""); // Reset new state
     setGrade("");   // Reset new state
@@ -110,7 +110,7 @@ const Orders: React.FC = () => {
                 </select>
               </div>
               {/* Searchable dropdown for parts */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700">
                   Part
                 </label>
@@ -134,7 +134,7 @@ const Orders: React.FC = () => {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
 
               {/* Input for quantity */}
               <div>
@@ -232,7 +232,7 @@ const Orders: React.FC = () => {
           {orders.map((order, index) => (
             <tr key={index} className="hover:bg-gray-100">
               <td className="py-2 px-4 border-b">{order.customer}</td>
-              <td className="py-2 px-4 border-b">{order.part.name}</td>
+              {/* <td className="py-2 px-4 border-b">{order.part.name}</td> */}
               <td className="py-2 px-4 border-b">{order.quantity}</td>   
               <td className="py-2 px-4 border-b">{order.machine}</td>   
               <td className="py-2 px-4 border-b">{order.grade}</td>   
