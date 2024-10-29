@@ -14,9 +14,15 @@ import { Part, Order } from "../lib/models"; // Assuming Order and Part are type
 import Navbar from "@/components/nav";
 
 // Sample initial data for parts
-const partsList: Part[] = [
-  { name: "Bolt", description: "A standard bolt", quantity: 100 },
-  { name: "Nut", description: "A standard nut", quantity: 150 },
+const allPartsList: Part[] = [
+  {
+    name: "Bolt", description: "A standard bolt", quantity: 100,
+    id: ""
+  },
+  {
+    name: "Nut", description: "A standard nut", quantity: 150,
+    id: ""
+  },
 ];
 
 const customersList = [
@@ -45,6 +51,7 @@ const Orders: React.FC = () => {
     }
 
     const newOrder: Order = {
+      id: Math.random().toString(),
       part: selectedPart,
       quantity: quantity,
       customer: selectedCustomer,
@@ -112,15 +119,16 @@ const Orders: React.FC = () => {
                   value={selectedPart ? selectedPart.name : ""}
                   onChange={(e) =>
                     setSelectedPart(
-                      partsList.find((part) => part.name === e.target.value) ||
-                        null
+                      allPartsList.find(
+                        (part) => part.id === e.target.value
+                      ) || null
                     )
                   }
                 >
                   <option value="" disabled>
                     Select a part...
                   </option>
-                  {partsList.map((part, index) => (
+                  {allPartsList.map((part, index) => (
                     <option key={index} value={part.name}>
                       {part.name} - {part.description}
                     </option>

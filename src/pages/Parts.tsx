@@ -1,4 +1,3 @@
-// src/pages/Inventory.tsx
 import React, { useState } from "react";
 import {
   Dialog,
@@ -13,18 +12,28 @@ import {
 import { Button } from "../components/ui/button";
 import { Separator } from "../components/ui/separator";
 import { Part } from "../lib/models";
-import Navbar from "@/components/nav";
 
 // Sample data (you can replace this with actual API data)
 const initialParts: Part[] = [
-  { name: "Bolt", description: "A standard bolt", quantity: 100 },
-  { name: "Nut", description: "A standard nut", quantity: 150 },
+  {
+    id: Math.random().toString(),
+    name: "Bolt",
+    description: "A standard bolt",
+    quantity: 100,
+  },
+  {
+    id: Math.random().toString(),
+    name: "Nut",
+    description: "A standard nut",
+    quantity: 150,
+  },
 ];
 
-const Inventory: React.FC = () => {
+const Parts: React.FC = () => {
   const [parts, setParts] = useState<Part[]>(initialParts);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newPart, setNewPart] = useState<Part>({
+    id: Math.random().toString(),
     name: "",
     description: "",
     quantity: 0,
@@ -38,13 +47,17 @@ const Inventory: React.FC = () => {
 
     setParts([...parts, newPart]);
     setIsDialogOpen(false);
-    setNewPart({ name: "", description: "", quantity: 0 });
+    setNewPart({
+      id: Math.random().toString(),
+      name: "",
+      description: "",
+      quantity: 0,
+    });
   };
 
   return (
     <div className="bg-black min-h-screen p-8 w-[100]">
       <div className="container mx-auto">
-        <Navbar />
         <Separator />
       </div>
       <h1 className="text-2xl font-bold mb-4">Inventory</h1>
@@ -135,4 +148,4 @@ const Inventory: React.FC = () => {
   );
 };
 
-export default Inventory;
+export default Parts;
