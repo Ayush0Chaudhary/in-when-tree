@@ -31,7 +31,16 @@ public class ComponentService {
     }
 
     public Component updateComponent(Component component) {
-        return componentRepository.save(component);
+        final Component existingComponent = componentRepository.findById(component.getId()).orElse(null);
+        existingComponent.setName(component.getName());
+        existingComponent.setDescription(component.getDescription());
+        existingComponent.setMachine(component.getMachine());
+        existingComponent.setCast_wgt(component.getCast_wgt());
+        existingComponent.setCavities(component.getCavities());
+        existingComponent.setGrade(component.getGrade());
+        existingComponent.setParts(component.getParts());
+        existingComponent.setQuantity(component.getQuantity());
+        return existingComponent;
     }
 
     public void deleteComponentById(Long id) {
