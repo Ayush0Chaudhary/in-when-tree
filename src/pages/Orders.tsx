@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { Button } from "../components/ui/button";
-import { Part, Order } from "../lib/models"; // Assuming Order and Part are types in models
+import { Comp, Order } from "../lib/models"; // Assuming Order and Part are types in models
 import { Separator } from "@/components/ui/separator";
 
 // Sample initial data for parts
@@ -33,10 +33,88 @@ const customersList = [
   "Sarah Brown",
 ];
 
+const componentsList: Comp[] = [
+  {
+    id: Math.random().toString(),
+    name: "Table",
+    description: "A wooden dining table",
+    parts: [
+      {
+        id: Math.random().toString(),
+        name: "Leg",
+        description: "Wooden leg",
+        quantity: 4,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Screw",
+        description: "Metal screw",
+        quantity: 10,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Board",
+        description: "Wooden board",
+        quantity: 1,
+      },
+    ],
+  },
+  {
+    id: Math.random().toString(),
+    name: "Chair",
+    description: "A comfortable office chair",
+    parts: [
+      {
+        id: Math.random().toString(),
+        name: "Wheel",
+        description: "Plastic wheel",
+        quantity: 5,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Screw",
+        description: "Metal screw",
+        quantity: 8,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Seat",
+        description: "Cushioned seat",
+        quantity: 1,
+      },
+    ],
+  },
+  {
+    id: Math.random().toString(),
+    name: "Lamp",
+    description: "A desk lamp",
+    parts: [
+      {
+        id: Math.random().toString(),
+        name: "Bulb",
+        description: "LED bulb",
+        quantity: 1,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Base",
+        description: "Metal base",
+        quantity: 1,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Switch",
+        description: "On/Off switch",
+        quantity: 1,
+      },
+    ],
+  },
+];
+
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]); // Initially empty order list
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // const [selectedPart, setSelectedPart] = useState<Part | null>(null);
+  const [selectedComp, setSelectedComp] = useState<Comp | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [quantity, setQuantity] = useState<number>(0);
   const [machine, setMachine] = useState<string>("");
@@ -45,14 +123,14 @@ const Orders: React.FC = () => {
   const [castingWt, setCastingWt] = useState<number>(0);
 
   const handleAddOrder = () => {
-    // if (!selectedPart || quantity <= 0) {
-    //   alert("Please select a part and enter a valid quantity.");
-    //   return;
-    // }
+    if (!selectedComp || quantity <= 0) {
+      alert("Please select a component and enter a valid quantity.");
+      return;
+    }
 
     const newOrder: Order = {
       id: Math.random().toString(),
-      //part: selectedPart,
+      comp: selectedComp,
       quantity: quantity,
       customer: selectedCustomer,
       machine,
@@ -109,31 +187,30 @@ const Orders: React.FC = () => {
                   ))}
                 </select>
               </div>
-              {/* Searchable dropdown for parts */}
-              {/* <div>
+              {/* Dropdown for Component Selection */}
+              <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Part
+                  Component
                 </label>
                 <select
                   className="input w-full px-3 py-2 border border-gray-300 rounded bg-white text-black"
-                  value={selectedPart ? selectedPart.name : ""}
+                  value={selectedComp ? selectedComp.id : ""}
                   onChange={(e) =>
-                    setSelectedPart(
-                      allPartsList.find((part) => part.id === e.target.value) ||
-                        null
+                    setSelectedComp(
+                      componentsList.find((component) => component.id === e.target.value) || null
                     )
                   }
                 >
                   <option value="" disabled>
-                    Select a part...
+                    Select a component...
                   </option>
-                  {allPartsList.map((part, index) => (
-                    <option key={index} value={part.name}>
-                      {part.name} - {part.description}
+                  {componentsList.map((component, index) => (
+                    <option key={index} value={component.id}>
+                      {component.name} - {component.description}
                     </option>
                   ))}
                 </select>
-              </div> */}
+              </div>
 
               {/* Input for quantity */}
               <div>

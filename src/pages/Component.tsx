@@ -12,7 +12,83 @@ import { Button } from "../components/ui/button";
 import { Separator } from "../components/ui/separator";
 import { Comp, Part } from "../lib/models";
 
-const initialComponents: Comp[] = [];
+const initialComponents: Comp[] = [
+  {
+    id: Math.random().toString(),
+    name: "Table",
+    description: "A wooden dining table",
+    parts: [
+      {
+        id: Math.random().toString(),
+        name: "Leg",
+        description: "Wooden leg",
+        quantity: 4,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Screw",
+        description: "Metal screw",
+        quantity: 10,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Board",
+        description: "Wooden board",
+        quantity: 1,
+      },
+    ],
+  },
+  {
+    id: Math.random().toString(),
+    name: "Chair",
+    description: "A comfortable office chair",
+    parts: [
+      {
+        id: Math.random().toString(),
+        name: "Wheel",
+        description: "Plastic wheel",
+        quantity: 5,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Screw",
+        description: "Metal screw",
+        quantity: 8,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Seat",
+        description: "Cushioned seat",
+        quantity: 1,
+      },
+    ],
+  },
+  {
+    id: Math.random().toString(),
+    name: "Lamp",
+    description: "A desk lamp",
+    parts: [
+      {
+        id: Math.random().toString(),
+        name: "Bulb",
+        description: "LED bulb",
+        quantity: 1,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Base",
+        description: "Metal base",
+        quantity: 1,
+      },
+      {
+        id: Math.random().toString(),
+        name: "Switch",
+        description: "On/Off switch",
+        quantity: 1,
+      },
+    ],
+  },
+];
 const existingParts: Part[] = [
   {
     id: Math.random().toString(),
@@ -46,6 +122,17 @@ const Components: React.FC = () => {
   const [selectedPartId, setSelectedPartId] = useState<string>("");
   const [selectedPartQuantity, setSelectedPartQuantity] = useState<number>(0);
 
+  const resetForm = () => {
+    setNewComponent({
+      id: Math.random().toString(),
+      name: "",
+      description: "",
+      parts: [],
+    });
+    setSelectedPartId("");
+    setSelectedPartQuantity(0);
+  };
+
   const handleAddComponent = () => {
     if (newComponent.name.trim() === "") {
       alert("Component name is required");
@@ -55,13 +142,7 @@ const Components: React.FC = () => {
 
     setComponents([...components, newComponent]);
     setIsDialogOpen(false);
-    setNewComponent({
-      id: Math.random().toString(),
-      name: "",
-      description: "",
-      parts: [],
-    });
-    setSelectedPartId("");
+    resetForm();
   };
 
   const handleAddPartToComponent = () => {
@@ -73,16 +154,23 @@ const Components: React.FC = () => {
       alert("Please select a part from the list");
       return;
     }
-    if (!selectedPartQuantity || selectedPartQuantity <= 0) {
+    if (selectedPartQuantity <= 0) {
       alert("Please select a valid quantity for the part");
       return;
     }
+    if (newComponent.parts.some((part) => part.id === selectedPart.id)) {
+      alert("This part is already added to the component");
+      return;
+    }
 
-    selectedPart.quantity = selectedPartQuantity;
+    const partWithQuantity = {
+      ...selectedPart,
+      quantity: selectedPartQuantity,
+    };
 
     setNewComponent((prevComponent) => ({
       ...prevComponent,
-      parts: [...prevComponent.parts, selectedPart],
+      parts: [...prevComponent.parts, partWithQuantity],
     }));
     setSelectedPartId("");
     setSelectedPartQuantity(0);
@@ -97,7 +185,13 @@ const Components: React.FC = () => {
         Components Inventory
       </h1>
       <div className="mb-4 flex justify-end">
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog
+          open={isDialogOpen}
+          onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) resetForm();
+          }}
+        >
           <DialogTrigger asChild>
             <Button variant="default">Add Component</Button>
           </DialogTrigger>
@@ -108,6 +202,15 @@ const Components: React.FC = () => {
                 Enter the details for the new component and its parts.
               </DialogDescription>
             </DialogHeader>
+
+            {/* <DialogClose asChild>
+              <button
+                className="absolute top-4 right-4 bg-white text-gray-800 p-2 rounded-full hover:bg-gray-200"
+                aria-label="Close"
+              >
+                &times;
+              </button>
+            </DialogClose> */}
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -115,7 +218,7 @@ const Components: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  className="input w-full px-3 py-2 border border-gray-300 rounded"
+                  className="input w-full px-3 py-2 border border-gray-300 rounded bg-white"
                   value={newComponent.name}
                   onChange={(e) =>
                     setNewComponent({ ...newComponent, name: e.target.value })
@@ -128,7 +231,7 @@ const Components: React.FC = () => {
                   Description
                 </label>
                 <textarea
-                  className="input w-full px-3 py-2 border border-gray-300 rounded"
+                  className="input w-full px-3 py-2 border border-gray-300 rounded bg-white"
                   value={newComponent.description}
                   onChange={(e) =>
                     setNewComponent({
@@ -147,7 +250,7 @@ const Components: React.FC = () => {
                       Select Part
                     </label>
                     <select
-                      className="input w-full px-3 py-2 border border-gray-300 rounded"
+                      className="input w-full px-3 py-2 border border-gray-300 rounded bg-white"
                       value={selectedPartId}
                       onChange={(e) => setSelectedPartId(e.target.value)}
                     >
@@ -167,7 +270,7 @@ const Components: React.FC = () => {
                     </label>
                     <input
                       type="number"
-                      className="input w-full px-3 py-2 border border-gray-300 rounded"
+                      className="input w-full px-3 py-2 border border-gray-300 rounded bg-white"
                       value={selectedPartQuantity}
                       onChange={(e) =>
                         setSelectedPartQuantity(Number(e.target.value))
@@ -198,6 +301,7 @@ const Components: React.FC = () => {
                   variant="default"
                   type="submit"
                   onClick={handleAddComponent}
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
                   Save Component
                 </Button>

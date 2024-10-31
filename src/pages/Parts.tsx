@@ -80,7 +80,7 @@ const Parts: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  className="input w-full px-3 py-2 border border-gray-300 rounded"
+                  className="input w-full px-3 py-2 border border-gray-300 rounded bg-white"
                   value={newPart.name}
                   onChange={(e) =>
                     setNewPart({ ...newPart, name: e.target.value })
@@ -93,7 +93,7 @@ const Parts: React.FC = () => {
                   Description
                 </label>
                 <textarea
-                  className="input w-full px-3 py-2 border border-gray-300 rounded"
+                  className="input w-full px-3 py-2 border border-gray-300 rounded bg-white"
                   value={newPart.description}
                   onChange={(e) =>
                     setNewPart({ ...newPart, description: e.target.value })
@@ -107,7 +107,7 @@ const Parts: React.FC = () => {
                 </label>
                 <input
                   type="number"
-                  className="input w-full px-3 py-2 border border-gray-300 rounded"
+                  className="input w-full px-3 py-2 border border-gray-300 rounded bg-white"
                   value={newPart.quantity}
                   onChange={(e) =>
                     setNewPart({ ...newPart, quantity: Number(e.target.value) })
