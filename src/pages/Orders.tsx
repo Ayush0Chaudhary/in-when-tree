@@ -35,79 +35,30 @@ const customersList = [
 
 const componentsList: Comp[] = [
   {
-    id: Math.random().toString(),
+    id: Math.random(),
     name: "Table",
     description: "A wooden dining table",
     parts: [
       {
-        id: Math.random().toString(),
+        id: Math.random(),
         name: "Leg",
         description: "Wooden leg",
         quantity: 4,
       },
       {
-        id: Math.random().toString(),
+        id: Math.random(),
         name: "Screw",
         description: "Metal screw",
         quantity: 10,
       },
       {
-        id: Math.random().toString(),
+        id: Math.random(),
         name: "Board",
         description: "Wooden board",
         quantity: 1,
       },
     ],
-  },
-  {
-    id: Math.random().toString(),
-    name: "Chair",
-    description: "A comfortable office chair",
-    parts: [
-      {
-        id: Math.random().toString(),
-        name: "Wheel",
-        description: "Plastic wheel",
-        quantity: 5,
-      },
-      {
-        id: Math.random().toString(),
-        name: "Screw",
-        description: "Metal screw",
-        quantity: 8,
-      },
-      {
-        id: Math.random().toString(),
-        name: "Seat",
-        description: "Cushioned seat",
-        quantity: 1,
-      },
-    ],
-  },
-  {
-    id: Math.random().toString(),
-    name: "Lamp",
-    description: "A desk lamp",
-    parts: [
-      {
-        id: Math.random().toString(),
-        name: "Bulb",
-        description: "LED bulb",
-        quantity: 1,
-      },
-      {
-        id: Math.random().toString(),
-        name: "Base",
-        description: "Metal base",
-        quantity: 1,
-      },
-      {
-        id: Math.random().toString(),
-        name: "Switch",
-        description: "On/Off switch",
-        quantity: 1,
-      },
-    ],
+    quantity: [1],
   },
 ];
 
@@ -129,14 +80,16 @@ const Orders: React.FC = () => {
     }
 
     const newOrder: Order = {
-      id: Math.random().toString(),
-      comp: selectedComp,
+      id: Math.random(),
+      component: selectedComp,
       quantity: quantity,
       customer: selectedCustomer,
-      machine,
-      grade,
-      cavity,
-      castingWt,
+      machine: machine,
+      grade: grade,
+      cavity: cavity,
+      description: selectedComp.description,
+      status: "Feasible for production",
+      cast_wtg: castingWt,
     };
 
     setOrders([...orders, newOrder]);
@@ -197,7 +150,9 @@ const Orders: React.FC = () => {
                   value={selectedComp ? selectedComp.id : ""}
                   onChange={(e) =>
                     setSelectedComp(
-                      componentsList.find((component) => component.id === e.target.value) || null
+                      componentsList.find(
+                        (component) => component.id === Number(e.target.value)
+                      ) || null
                     )
                   }
                 >
@@ -314,7 +269,7 @@ const Orders: React.FC = () => {
               <td className="py-2 px-4 border-b">{order.machine}</td>
               <td className="py-2 px-4 border-b">{order.grade}</td>
               <td className="py-2 px-4 border-b">{order.cavity}</td>
-              <td className="py-2 px-4 border-b">{order.castingWt}</td>
+              <td className="py-2 px-4 border-b">{order.cast_wtg}</td>
             </tr>
           ))}
         </tbody>
