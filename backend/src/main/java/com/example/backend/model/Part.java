@@ -2,6 +2,8 @@ package com.example.backend.model;
 
 import org.checkerframework.common.aliasing.qual.Unique;
 
+// import org.checkerframework.common.aliasing.qual.Unique;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
