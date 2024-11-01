@@ -7,12 +7,27 @@ import Parts from "./Parts";
 
 const Home: React.FC = () => {
   return (
-    <div className="bg-black min-h-screen w-screen">
+    <div className="bg-white min-h-screen w-screen">
       <Tabs defaultValue="parts" className="w-screen">
-        <TabsList>
-          <TabsTrigger value="parts">Parts</TabsTrigger>
-          <TabsTrigger value="components">Components</TabsTrigger>
-          <TabsTrigger value="orders">Orders</TabsTrigger>
+        <TabsList className="flex space-x-4">
+          <TabsTrigger
+            value="parts"
+            className="bg-white hover:bg-gray-200 data-[state=active]:bg-gray-300 text-black px-4 py-2 rounded-md"
+          >
+            Parts
+          </TabsTrigger>
+          <TabsTrigger
+            value="components"
+            className="bg-white hover:bg-gray-200 data-[state=active]:bg-gray-300 text-black px-4 py-2 rounded-md"
+          >
+            Components
+          </TabsTrigger>
+          <TabsTrigger
+            value="orders"
+            className="bg-white hover:bg-gray-200 data-[state=active]:bg-gray-300 text-black px-4 py-2 rounded-md"
+          >
+            Orders
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="parts">
           <Parts></Parts>

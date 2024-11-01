@@ -135,11 +135,11 @@ const Components: React.FC = () => {
   if (loading) return <p className="bg-white">Loading Components...</p>;
 
   return (
-    <div className="bg-black min-h-screen p-8 w-full">
+    <div className="bg-white min-h-screen p-8 w-full">
       <div className="container mx-auto">
         <Separator />
       </div>
-      <h1 className="text-2xl font-bold mb-4 text-white">
+      <h1 className="text-2xl font-bold mb-4 text-black">
         Components Inventory
       </h1>
       <div className="mb-4 flex justify-end">

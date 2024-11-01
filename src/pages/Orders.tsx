@@ -62,8 +62,71 @@ const componentsList: Comp[] = [
   },
 ];
 
+const initialOrders: Order[] = [
+  {
+    id: Math.random(),
+    customer: "John Doe",
+    component: componentsList[0],
+    quantity: 2,
+    machine: "Lathe Machine 1",
+    grade: "A",
+    cavity: 2,
+    cast_wtg: 12.5,
+    description: componentsList[0].description,
+    status: "Feasible",
+  },
+  {
+    id: Math.random(),
+    customer: "Jane Smith",
+    component: componentsList[0],
+    quantity: 5,
+    machine: "Lathe Machine 2",
+    grade: "B",
+    cavity: 4,
+    cast_wtg: 8.2,
+    description: componentsList[0].description,
+    status: "Not feasible",
+  },
+  {
+    id: Math.random(),
+    customer: "Michael Johnson",
+    component: componentsList[0],
+    quantity: 3,
+    machine: "Drill Press 1",
+    grade: "C",
+    cavity: 1,
+    cast_wtg: 10.7,
+    description: componentsList[0].description,
+    status: "Feasible",
+  },
+  {
+    id: Math.random(),
+    customer: "Emily Davis",
+    component: componentsList[0],
+    quantity: 7,
+    machine: "Milling Machine",
+    grade: "A",
+    cavity: 2,
+    cast_wtg: 15.3,
+    description: componentsList[0].description,
+    status: "Not feasible",
+  },
+  {
+    id: Math.random(),
+    customer: "Sarah Brown",
+    component: componentsList[0],
+    quantity: 4,
+    machine: "Lathe Machine 3",
+    grade: "B",
+    cavity: 3,
+    cast_wtg: 11.0,
+    description: componentsList[0].description,
+    status: "Feasible",
+  },
+];
+
 const Orders: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]); // Initially empty order list
+  const [orders, setOrders] = useState<Order[]>(initialOrders); // Initially empty order list
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedComp, setSelectedComp] = useState<Comp | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState("");
@@ -88,7 +151,7 @@ const Orders: React.FC = () => {
       grade: grade,
       cavity: cavity,
       description: selectedComp.description,
-      status: "Feasible for production",
+      status: Math.random() < 0.5 ? "Feasible" : "Not feasible",
       cast_wtg: castingWt,
     };
 
@@ -103,11 +166,11 @@ const Orders: React.FC = () => {
   };
 
   return (
-    <div className="bg-black min-h-screen p-8 w-screen">
+    <div className="bg-white min-h-screen p-8 w-screen">
       <div className="container mx-auto">
         <Separator />
       </div>
-      <h1 className="text-2xl font-bold text-white mb-4">Orders</h1>
+      <h1 className="text-2xl font-bold text-black mb-4">Orders</h1>
       <div className="mb-4 flex justify-end">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -251,12 +314,14 @@ const Orders: React.FC = () => {
         <thead>
           <tr>
             <th className="py-2 px-4 border-b">Customer</th>
-            <th className="py-2 px-4 border-b">Part</th>
+            <th className="py-2 px-4 border-b">Component</th>
             <th className="py-2 px-4 border-b">Quantity</th>
             <th className="py-2 px-4 border-b">Machine</th> {/* New Column */}
             <th className="py-2 px-4 border-b">Grade</th> {/* New Column */}
             <th className="py-2 px-4 border-b">Cavity</th> {/* New Column */}
             <th className="py-2 px-4 border-b">Casting Weight</th>{" "}
+            <th className="py-2 px-4 border-b">Status</th>{" "}
+            <th className="py-2 px-4 border-b">Actions</th>
             {/* New Column */}
           </tr>
         </thead>
@@ -264,12 +329,27 @@ const Orders: React.FC = () => {
           {orders.map((order, index) => (
             <tr key={index} className="hover:bg-gray-100">
               <td className="py-2 px-4 border-b">{order.customer}</td>
-              {/* <td className="py-2 px-4 border-b">{order.part.name}</td> */}
+              <td className="py-2 px-4 border-b">{order.component.name}</td>
               <td className="py-2 px-4 border-b">{order.quantity}</td>
               <td className="py-2 px-4 border-b">{order.machine}</td>
               <td className="py-2 px-4 border-b">{order.grade}</td>
               <td className="py-2 px-4 border-b">{order.cavity}</td>
               <td className="py-2 px-4 border-b">{order.cast_wtg}</td>
+              <td className="py-2 px-4 border-b">{order.status}</td>
+              <td className="py-2 px-4 border-b">
+                {order.status === "Feasible" && (
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
+                    onClick={() => {
+                      const updatedOrders = [...orders];
+                      updatedOrders[index] = { ...order, status: "Complete" };
+                      setOrders(updatedOrders);
+                    }}
+                  >
+                    Mark as Complete
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
