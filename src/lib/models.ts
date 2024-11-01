@@ -1,25 +1,28 @@
 // src/lib/models.ts
 export interface Part {
-    id: string;
+    id: number;
     name: string;
     description: string;
     quantity: number;
   }
   
   export type Order = {
-    id: string;
-    comp: Comp | null;
+    id: number;
+    description: string;
+    component: Comp;
     quantity: number;
     customer: string;
     machine: string;
     grade: string;
     cavity: number;
-    castingWt: number;
+    cast_wtg: number;
+    status: string;
   };
 
   export type Comp = {
-    id: string;
+    id: number;
     name: string;
     description: string;
     parts: Part[];
+    quantity: number[];
   }

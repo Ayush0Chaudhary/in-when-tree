@@ -1,12 +1,9 @@
 package com.btp.inwhentrie.entity;
 
-import java.util.List;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,16 +13,19 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "COMPONENTS")
-public class Component {
+@Table(name = "ORDERS")
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
     private String description;
-
-    @OneToMany(mappedBy = "id")
-    private List<Part> parts;
-    private List<Integer> quantity;
+    private Component component;
+    private Integer quantity;
+    private String status;
+    private String customer;
+    private String machine;
+    private String grade;
+    private Integer cavities;
+    private Double cast_wtg;
 }

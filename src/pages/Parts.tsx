@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { baseUrl } from "../lib/consts";
 import {
   Dialog,
   DialogClose,
@@ -14,26 +16,34 @@ import { Separator } from "../components/ui/separator";
 import { Part } from "../lib/models";
 
 // Sample data (you can replace this with actual API data)
-const initialParts: Part[] = [
-  {
-    id: Math.random().toString(),
-    name: "Bolt",
-    description: "A standard bolt",
-    quantity: 100,
-  },
-  {
-    id: Math.random().toString(),
-    name: "Nut",
-    description: "A standard nut",
-    quantity: 150,
-  },
-];
 
 const Parts: React.FC = () => {
-  const [parts, setParts] = useState<Part[]>(initialParts);
+  // const [parts, setParts] = useState<Part[]>(initialParts);
+  const [parts, setParts] = useState<Part[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}/parts`)
+      .then((response) => {
+        console.log("API response:", response.data); // Check the data format
+        if (Array.isArray(response.data)) {
+          setParts(response.data);
+        } else {
+          console.error("Expected an array but got:", response.data);
+          setParts([]); // Or handle it differently if necessary
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching parts:", error);
+        setLoading(false);
+      });
+  }, []);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newPart, setNewPart] = useState<Part>({
-    id: Math.random().toString(),
+    id: Math.random(),
     name: "",
     description: "",
     quantity: 0,
@@ -45,15 +55,33 @@ const Parts: React.FC = () => {
       return;
     }
 
-    setParts([...parts, newPart]);
-    setIsDialogOpen(false);
-    setNewPart({
-      id: Math.random().toString(),
-      name: "",
-      description: "",
-      quantity: 0,
-    });
+    // Send POST request to add new part
+    axios
+      .post(`${baseUrl}/parts`, {
+        name: newPart.name,
+        description: newPart.description,
+        quantity: newPart.quantity,
+      })
+      .then((response) => {
+        // If the request is successful, add the new part to the state
+
+        setParts([...parts, response.data]);
+        setIsDialogOpen(false);
+        setNewPart({
+          id: Math.random(),
+          name: "",
+          description: "",
+          quantity: 0,
+        });
+      })
+      .catch((error) => {
+        console.error("Error adding part:", error);
+        console.log("Error adding part:", error);
+        alert("Failed to add part. Please try again.");
+      });
   };
+
+  if (loading) return <p className="bg-white">Loading parts...</p>;
 
   return (
     <div className="bg-black min-h-screen p-8 w-[100]">
