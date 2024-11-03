@@ -279,6 +279,10 @@ const Orders: React.FC = () => {
                     onClick={() => {
                       const updatedOrders = [...orders];
                       updatedOrders[index] = { ...order, status: "Complete" };
+                      localStorage.setItem(
+                        "orders",
+                        JSON.stringify(updatedOrders)
+                      );
                       setOrders(updatedOrders);
                     }}
                   >

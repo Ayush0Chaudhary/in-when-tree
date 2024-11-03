@@ -16,6 +16,14 @@ import { Part } from "../lib/models";
 const Parts: React.FC = () => {
   const [parts, setParts] = useState<Part[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingPart, setEditingPart] = useState<Part | null>(null);
+  const [newPart, setNewPart] = useState<Part>({
+    id: Math.random(),
+    name: "",
+    description: "",
+    totalQuantity: 0,
+  });
 
   useEffect(() => {
     const storedParts = localStorage.getItem("parts");
@@ -30,42 +38,37 @@ const Parts: React.FC = () => {
     setLoading(false);
   }, []);
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newPart, setNewPart] = useState<Part>({
-    id: Math.random(),
-    name: "",
-    description: "",
-    totalQuantity: 0,
-  });
-
   const handleAddPart = () => {
-    if (newPart.name.trim() === "") {
-      alert("Part name is required");
-      return;
-    }
-    if (newPart.description.trim() === "") {
-      alert("Part description is required");
-      return;
-    }
-    if (newPart.totalQuantity <= 0) {
-      alert("Part quantity is required");
+    if (
+      newPart.name.trim() === "" ||
+      newPart.description.trim() === "" ||
+      newPart.totalQuantity <= 0
+    ) {
+      alert("All fields are required.");
       return;
     }
 
-    console.log("Adding part: -> ", newPart);
+    const updatedParts = editingPart
+      ? parts.map((part) => (part.id === editingPart.id ? newPart : part))
+      : [...parts, newPart];
 
-    // Add new part to the state and save it in localStorage
-    const updatedParts = [...parts, newPart];
     setParts(updatedParts);
     localStorage.setItem("parts", JSON.stringify(updatedParts));
 
     setIsDialogOpen(false);
+    setEditingPart(null);
     setNewPart({
       id: Math.random(),
       name: "",
       description: "",
       totalQuantity: 0,
     });
+  };
+
+  const openEditDialog = (part: Part) => {
+    setEditingPart(part);
+    setNewPart(part);
+    setIsDialogOpen(true);
   };
 
   if (loading) return <p className="bg-white">Loading parts...</p>;
@@ -77,15 +80,21 @@ const Parts: React.FC = () => {
       </div>
       <h1 className="text-2xl font-bold mb-4 text-black">Parts Inventory</h1>
       <div className="mb-4 flex justify-end">
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="default">Add Part</Button>
+            <Button variant="default" onClick={() => setIsDialogOpen(true)}>
+              {editingPart ? "Edit Part" : "Add Part"}
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add a New Part</DialogTitle>
+              <DialogTitle>
+                {editingPart ? "Edit Part" : "Add a New Part"}
+              </DialogTitle>
               <DialogDescription>
-                Enter the details for the new part.
+                {editingPart
+                  ? "Update the part details."
+                  : "Enter the details for the new part."}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -137,7 +146,7 @@ const Parts: React.FC = () => {
             <div className="mt-4 flex justify-end">
               <DialogClose asChild>
                 <Button variant="default" type="submit" onClick={handleAddPart}>
-                  Save Part
+                  {editingPart ? "Save Changes" : "Save Part"}
                 </Button>
               </DialogClose>
             </div>
@@ -150,6 +159,7 @@ const Parts: React.FC = () => {
             <th className="py-2 px-4 border-b">Name</th>
             <th className="py-2 px-4 border-b">Description</th>
             <th className="py-2 px-4 border-b">Quantity</th>
+            <th className="py-2 px-4 border-b">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -158,6 +168,11 @@ const Parts: React.FC = () => {
               <td className="py-2 px-4 border-b">{part.name}</td>
               <td className="py-2 px-4 border-b">{part.description}</td>
               <td className="py-2 px-4 border-b">{part.totalQuantity}</td>
+              <td className="py-2 px-4 border-b">
+                <Button variant="default" onClick={() => openEditDialog(part)}>
+                  Edit
+                </Button>
+              </td>
             </tr>
           ))}
         </tbody>
