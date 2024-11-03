@@ -32,7 +32,31 @@ const Components: React.FC = () => {
 
   useEffect(() => {
     fetchComponents();
+    fetchParts();
+    // try {
+    //   updateComponentInfo();
+    // } catch (error) {
+    //   console.error("Error updating component info:", error);
+    //   alert("Failed to update component info. Please try again.");
+    // }
   }, []);
+
+  // const updateComponentInfo = () => {
+  //   console.log("Updating component info...", components);
+  //   const updatedComponents = components.map((component) => {
+  //     const updatedParts = component.parts.map((part) => {
+  //       const updatedPart = parts.find((p) => p.id === part.id);
+  //       return updatedPart ? updatedPart : part;
+  //     });
+  //     return {
+  //       ...component,
+  //       parts: updatedParts,
+  //     };
+  //   });
+
+  //   setComponents(updatedComponents);
+  //   localStorage.setItem("components", JSON.stringify(updatedComponents));
+  // };
 
   const fetchComponents = async () => {
     try {
