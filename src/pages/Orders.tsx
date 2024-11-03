@@ -1,5 +1,5 @@
 // src/pages/Orders.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,18 +13,6 @@ import { Button } from "../components/ui/button";
 import { Comp, Order } from "../lib/models"; // Assuming Order and Part are types in models
 import { Separator } from "@/components/ui/separator";
 
-// Sample initial data for parts
-// const allPartsList: Part[] = [
-//   {
-//     name: "Bolt", description: "A standard bolt", quantity: 100,
-//     id: "6"
-//   },
-//   {
-//     name: "Nut", description: "A standard nut", quantity: 150,
-//     id: "7"
-//   },
-// ];
-
 const customersList = [
   "John Doe",
   "Jane Smith",
@@ -33,100 +21,8 @@ const customersList = [
   "Sarah Brown",
 ];
 
-const componentsList: Comp[] = [
-  {
-    id: Math.random(),
-    name: "Table",
-    description: "A wooden dining table",
-    parts: [
-      {
-        id: Math.random(),
-        name: "Leg",
-        description: "Wooden leg",
-        totalQuantity: 4,
-      },
-      {
-        id: Math.random(),
-        name: "Screw",
-        description: "Metal screw",
-        totalQuantity: 10,
-      },
-      {
-        id: Math.random(),
-        name: "Board",
-        description: "Wooden board",
-        totalQuantity: 1,
-      },
-    ],
-    quantity: [1],
-  },
-];
-
-const initialOrders: Order[] = [
-  {
-    id: Math.random(),
-    customer: "John Doe",
-    component: componentsList[0],
-    quantity: 2,
-    machine: "Lathe Machine 1",
-    grade: "A",
-    cavity: 2,
-    cast_wtg: 12.5,
-    description: componentsList[0].description,
-    status: "Feasible",
-  },
-  {
-    id: Math.random(),
-    customer: "Jane Smith",
-    component: componentsList[0],
-    quantity: 5,
-    machine: "Lathe Machine 2",
-    grade: "B",
-    cavity: 4,
-    cast_wtg: 8.2,
-    description: componentsList[0].description,
-    status: "Not feasible",
-  },
-  {
-    id: Math.random(),
-    customer: "Michael Johnson",
-    component: componentsList[0],
-    quantity: 3,
-    machine: "Drill Press 1",
-    grade: "C",
-    cavity: 1,
-    cast_wtg: 10.7,
-    description: componentsList[0].description,
-    status: "Feasible",
-  },
-  {
-    id: Math.random(),
-    customer: "Emily Davis",
-    component: componentsList[0],
-    quantity: 7,
-    machine: "Milling Machine",
-    grade: "A",
-    cavity: 2,
-    cast_wtg: 15.3,
-    description: componentsList[0].description,
-    status: "Not feasible",
-  },
-  {
-    id: Math.random(),
-    customer: "Sarah Brown",
-    component: componentsList[0],
-    quantity: 4,
-    machine: "Lathe Machine 3",
-    grade: "B",
-    cavity: 3,
-    cast_wtg: 11.0,
-    description: componentsList[0].description,
-    status: "Feasible",
-  },
-];
-
 const Orders: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>(initialOrders); // Initially empty order list
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedComp, setSelectedComp] = useState<Comp | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState("");
@@ -136,11 +32,43 @@ const Orders: React.FC = () => {
   const [cavity, setCavity] = useState<number>(0);
   const [castingWt, setCastingWt] = useState<number>(0);
 
+  const [components, setComponents] = useState<Comp[]>([]);
+
+  useEffect(() => {
+    const storedOrders = localStorage.getItem("orders");
+    if (storedOrders) {
+      try {
+        setOrders(JSON.parse(storedOrders));
+      } catch (error) {
+        console.error("Error parsing stored orders:", error);
+        setOrders([]);
+      }
+    }
+
+    const storedComponents = localStorage.getItem("components");
+    if (storedComponents) {
+      try {
+        setComponents(JSON.parse(storedComponents));
+      } catch (error) {
+        console.error("Error parsing stored components:", error);
+        setComponents([]);
+      }
+    }
+  }, []);
+
   const handleAddOrder = () => {
     if (!selectedComp || quantity <= 0) {
       alert("Please select a component and enter a valid quantity.");
       return;
     }
+
+    var feasibility: boolean = true;
+    // Check if the quantity is feasible
+    selectedComp.parts.forEach((part, index) => {
+      if (part.totalQuantity < quantity * selectedComp.quantity[index]) {
+        feasibility = false;
+      }
+    });
 
     const newOrder: Order = {
       id: Math.random(),
@@ -151,13 +79,21 @@ const Orders: React.FC = () => {
       grade: grade,
       cavity: cavity,
       description: selectedComp.description,
-      status: Math.random() < 0.5 ? "Feasible" : "Not feasible",
+      status: feasibility ? "Feasible" : "Not feasible",
       cast_wtg: castingWt,
     };
 
-    setOrders([...orders, newOrder]);
+    // store in local db
+    const updatedOrders = [...orders, newOrder];
+    try {
+      localStorage.setItem("orders", JSON.stringify(updatedOrders));
+      setOrders(updatedOrders);
+    } catch (error) {
+      console.error("Error storing orders in local storage:", error);
+      alert("Error storing order. Please try again.");
+    }
+
     setIsDialogOpen(false);
-    //setSelectedPart(null);
     setQuantity(0);
     setMachine(""); // Reset new state
     setGrade(""); // Reset new state
@@ -213,7 +149,7 @@ const Orders: React.FC = () => {
                   value={selectedComp ? selectedComp.id : ""}
                   onChange={(e) =>
                     setSelectedComp(
-                      componentsList.find(
+                      components.find(
                         (component) => component.id === Number(e.target.value)
                       ) || null
                     )
@@ -222,7 +158,7 @@ const Orders: React.FC = () => {
                   <option value="" disabled>
                     Select a component...
                   </option>
-                  {componentsList.map((component, index) => (
+                  {components.map((component, index) => (
                     <option key={index} value={component.id}>
                       {component.name} - {component.description}
                     </option>
