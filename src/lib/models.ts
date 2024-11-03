@@ -3,7 +3,7 @@ export interface Part {
     id: number;
     name: string;
     description: string;
-    quantity: number;
+    totalQuantity: number;
   }
   
   export type Order = {

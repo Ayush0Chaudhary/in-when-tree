@@ -5,34 +5,31 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
-import java.util.HashSet;
-import java.util.Set;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "parts")
-public class Part {
+@Table(name = "COMPONENT_PART")
+public class ComponentPart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "component_id")
+    private Component component;
+
+    @ManyToOne
+    @JoinColumn(name = "part_id", nullable = false)
+    private Part part;
+
     @Column(nullable = false)
-    private String name;
-
-    private String description;
-
-    @Column(nullable = false)
-    private Integer totalQuantity;
-
-    @OneToMany(mappedBy = "part")
-    private Set<ComponentPart> componentParts = new HashSet<>();
+    private Integer quantityPerComponent;
 }

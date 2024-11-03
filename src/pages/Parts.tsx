@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { baseUrl } from "../lib/consts";
 import {
   Dialog,
   DialogClose,
@@ -15,30 +13,21 @@ import { Button } from "../components/ui/button";
 import { Separator } from "../components/ui/separator";
 import { Part } from "../lib/models";
 
-// Sample data (you can replace this with actual API data)
-
 const Parts: React.FC = () => {
-  // const [parts, setParts] = useState<Part[]>(initialParts);
   const [parts, setParts] = useState<Part[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`${baseUrl}/parts`)
-      .then((response) => {
-        console.log("API response:", response.data); // Check the data format
-        if (Array.isArray(response.data)) {
-          setParts(response.data);
-        } else {
-          console.error("Expected an array but got:", response.data);
-          setParts([]); // Or handle it differently if necessary
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching parts:", error);
-        setLoading(false);
-      });
+    const storedParts = localStorage.getItem("parts");
+    if (storedParts) {
+      try {
+        setParts(JSON.parse(storedParts));
+      } catch (error) {
+        console.error("Error parsing stored parts:", error);
+        setParts([]);
+      }
+    }
+    setLoading(false);
   }, []);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -46,7 +35,7 @@ const Parts: React.FC = () => {
     id: Math.random(),
     name: "",
     description: "",
-    quantity: 0,
+    totalQuantity: 0,
   });
 
   const handleAddPart = () => {
@@ -54,31 +43,29 @@ const Parts: React.FC = () => {
       alert("Part name is required");
       return;
     }
+    if (newPart.description.trim() === "") {
+      alert("Part description is required");
+      return;
+    }
+    if (newPart.totalQuantity <= 0) {
+      alert("Part quantity is required");
+      return;
+    }
 
-    // Send POST request to add new part
-    axios
-      .post(`${baseUrl}/parts`, {
-        name: newPart.name,
-        description: newPart.description,
-        quantity: newPart.quantity,
-      })
-      .then((response) => {
-        // If the request is successful, add the new part to the state
+    console.log("Adding part: -> ", newPart);
 
-        setParts([...parts, response.data]);
-        setIsDialogOpen(false);
-        setNewPart({
-          id: Math.random(),
-          name: "",
-          description: "",
-          quantity: 0,
-        });
-      })
-      .catch((error) => {
-        console.error("Error adding part:", error);
-        console.log("Error adding part:", error);
-        alert("Failed to add part. Please try again.");
-      });
+    // Add new part to the state and save it in localStorage
+    const updatedParts = [...parts, newPart];
+    setParts(updatedParts);
+    localStorage.setItem("parts", JSON.stringify(updatedParts));
+
+    setIsDialogOpen(false);
+    setNewPart({
+      id: Math.random(),
+      name: "",
+      description: "",
+      totalQuantity: 0,
+    });
   };
 
   if (loading) return <p className="bg-white">Loading parts...</p>;
@@ -136,9 +123,12 @@ const Parts: React.FC = () => {
                 <input
                   type="number"
                   className="input w-full px-3 py-2 border border-gray-300 rounded bg-white"
-                  value={newPart.quantity}
+                  value={newPart.totalQuantity}
                   onChange={(e) =>
-                    setNewPart({ ...newPart, quantity: Number(e.target.value) })
+                    setNewPart({
+                      ...newPart,
+                      totalQuantity: Number(e.target.value),
+                    })
                   }
                   placeholder="Enter quantity"
                 />
@@ -167,7 +157,7 @@ const Parts: React.FC = () => {
             <tr key={index} className="hover:bg-gray-100">
               <td className="py-2 px-4 border-b">{part.name}</td>
               <td className="py-2 px-4 border-b">{part.description}</td>
-              <td className="py-2 px-4 border-b">{part.quantity}</td>
+              <td className="py-2 px-4 border-b">{part.totalQuantity}</td>
             </tr>
           ))}
         </tbody>

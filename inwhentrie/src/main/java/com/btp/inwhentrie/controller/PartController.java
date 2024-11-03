@@ -26,6 +26,7 @@ public class PartController {
 
     @PostMapping("/parts")
     public Part addPart(@RequestBody Part part) {
+        System.out.println(part);
         return partService.addPart(part);
     }
 

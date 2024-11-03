@@ -33,7 +33,7 @@ public class PartService {
         final Part existingPart = partRepository.findById(part.getId()).orElse(null);
         existingPart.setName(part.getName());
         existingPart.setDescription(part.getDescription());
-        existingPart.setQuantity(part.getQuantity());
+        existingPart.setTotalQuantity(part.getTotalQuantity());
         return existingPart;
     }
 

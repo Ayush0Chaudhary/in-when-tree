@@ -34,8 +34,7 @@ public class ComponentService {
         final Component existingComponent = componentRepository.findById(component.getId()).orElse(null);
         existingComponent.setName(component.getName());
         existingComponent.setDescription(component.getDescription());
-        existingComponent.setParts(component.getParts());
-        existingComponent.setQuantity(component.getQuantity());
+        // existingComponent.setParts(component.getParts());
         return existingComponent;
     }
 

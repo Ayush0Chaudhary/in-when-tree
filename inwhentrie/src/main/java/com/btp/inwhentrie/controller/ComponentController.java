@@ -26,11 +26,17 @@ public class ComponentController {
 
     @PostMapping("/components")
     public Component addComponent(@RequestBody Component component) {
+        // System.out.println("COMPONENT -> " + componentPart);
+        System.out.println("COMPONENT -> " + component);
+
+        // Component component = componentPart.getComponent();
+
         return componentService.addComponent(component);
     }
 
     @PutMapping("/update-component")
     public Component updateComponent(@RequestBody Component component) {
+        System.out.println("COMPONENT -> " + component);
         return componentService.updateComponent(component);
     }
 

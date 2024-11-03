@@ -1,8 +1,5 @@
 package com.btp.inwhentrie.entity;
 
-import java.util.List;
-
-import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,20 +9,33 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+
 @Data
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "COMPONENTS")
+@Table(name = "components")
 public class Component {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
+
     private String description;
 
-    @OneToMany(mappedBy = "id")
-    private List<Part> parts;
-    private List<Integer> quantity;
+    @OneToMany(mappedBy = "component", cascade = CascadeType.ALL)
+    private Set<ComponentPart> componentParts = new HashSet<>();
+
+    @OneToMany(mappedBy = "component")
+    private List<Order> orders = new ArrayList<>();
 }

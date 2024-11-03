@@ -11,8 +11,6 @@ import {
 import { Button } from "../components/ui/button";
 import { Separator } from "../components/ui/separator";
 import { Comp, Part } from "../lib/models";
-import { baseUrl } from "@/lib/consts";
-import axios from "axios";
 
 const Components: React.FC = () => {
   const [components, setComponents] = useState<Comp[]>([]);
@@ -24,7 +22,7 @@ const Components: React.FC = () => {
     description: "",
     parts: [],
   });
-  const [selectedPartId, setSelectedPartId] = useState<number>(0);
+  const [selectedPartId, setSelectedPartId] = useState<number>(-1);
   const [selectedPartQuantity, setSelectedPartQuantity] = useState<number>(0);
 
   const [partsLoading, setPartsLoading] = useState(false);
@@ -38,11 +36,16 @@ const Components: React.FC = () => {
 
   const fetchComponents = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/components`);
-      console.log("RESPONSE DATA -> ", response.data);
-      setComponents(response.data);
+      const storedComponents = localStorage.getItem("components");
+      if (storedComponents) {
+        try {
+          setComponents(JSON.parse(storedComponents));
+        } catch (error) {
+          console.error("Error parsing stored components:", error);
+          setComponents([]);
+        }
+      }
       setLoading(false);
-      console.log("COMPONENTS -> ", components);
     } catch (error) {
       console.log(error);
       console.error("Error fetching components:", error);
@@ -66,26 +69,16 @@ const Components: React.FC = () => {
     setPartsLoading(true);
     setPartsError(null);
 
-    axios
-      .get(`${baseUrl}/parts`)
-      .then((response) => {
-        console.log("API response:", response.data); // Check the data format
-        if (Array.isArray(response.data)) {
-          setParts(response.data);
-        } else {
-          console.error("Expected an array but got:", response.data);
-          setParts([]); // Or handle it differently if necessary
-        }
-        setPartsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching parts:", error);
-        setPartsError("Error fetching the parts. Try again.");
-        setPartsLoading(false);
-      })
-      .finally(() => {
-        setPartsLoading(false);
-      });
+    const storedParts = localStorage.getItem("parts");
+    if (storedParts) {
+      try {
+        setParts(JSON.parse(storedParts));
+      } catch (error) {
+        console.error("Error parsing stored parts:", error);
+        setParts([]);
+      }
+    }
+    setPartsLoading(false);
   };
 
   const handleOpenDialog = (open: boolean) => {
@@ -94,40 +87,67 @@ const Components: React.FC = () => {
     else resetForm();
   };
 
-  const handleAddComponent = () => {
+  const handleAddComponent = async () => {
     if (newComponent.name.trim() === "") {
       alert("Component name is required");
       return;
     }
-    setComponents([...components, newComponent]);
-    setIsDialogOpen(false);
-    resetForm();
+    if (newComponent.description.trim() === "") {
+      alert("Component description is required");
+      return;
+    }
+    if (newComponent.quantity.length <= 0) {
+      alert("Part Quantities are not defined. Please try again.");
+      return;
+    }
+
+    console.log("New Component -> ", newComponent);
+    const updatedComponents = [...components, newComponent];
+    try {
+      localStorage.setItem("components", JSON.stringify(updatedComponents));
+      setComponents(updatedComponents);
+
+      setIsDialogOpen(false);
+      resetForm();
+    } catch (error) {
+      console.error("Error saving component to local storage:", error);
+      alert("Failed to add component. Please try again.");
+    }
   };
 
   const handleAddPartToComponent = () => {
     console.log("Selected part:", selectedPartId, selectedPartQuantity);
     console.log("All Parts:", parts);
     const selectedPart = parts.find((part) => part.id === selectedPartId);
+
     if (!selectedPart) {
       alert("Please select a part from the list");
       return;
     }
+
     if (selectedPartQuantity <= 0) {
       alert("Please select a valid quantity for the part");
       return;
     }
+
     if (newComponent.parts.some((part) => part.id === selectedPart.id)) {
       alert("This part is already added to the component");
       return;
     }
-    const partWithQuantity = {
-      ...selectedPart,
-      quantity: selectedPartQuantity,
-    };
+
+    // const partWithQuantity = {
+    //   ...selectedPart,
+    //   quantity: selectedPartQuantity,
+    // };
+
+    // console.log("Part with Quantity -> ", partWithQuantity);
+
     setNewComponent((prevComponent) => ({
       ...prevComponent,
-      parts: [...prevComponent.parts, partWithQuantity],
+      parts: [...prevComponent.parts, selectedPart],
+      quantity: [...prevComponent.quantity, selectedPartQuantity],
     }));
+
     setSelectedPartId(0);
     setSelectedPartQuantity(0);
   };
@@ -204,9 +224,7 @@ const Components: React.FC = () => {
                           setSelectedPartId(Number(e.target.value))
                         }
                       >
-                        <option value="" disabled>
-                          Select a part...
-                        </option>
+                        <option value="">Select a part...</option>
                         {parts.map((part) => (
                           <option key={part.id} value={part.id}>
                             {part.name} - {part.description}
@@ -231,7 +249,7 @@ const Components: React.FC = () => {
                     <Button
                       variant="secondary"
                       onClick={handleAddPartToComponent}
-                      disabled={!selectedPartId}
+                      disabled={selectedPartId == -1}
                     >
                       Add Selected Part
                     </Button>
@@ -240,7 +258,8 @@ const Components: React.FC = () => {
                 <ul className="mt-4">
                   {newComponent.parts.map((part, index) => (
                     <li key={index} className="text-sm text-gray-600">
-                      {part.name} - {part.description} (Qty: {part.quantity})
+                      {part.name} - {part.description} (Qty:{" "}
+                      {newComponent.quantity[index]})
                     </li>
                   ))}
                 </ul>
@@ -267,7 +286,6 @@ const Components: React.FC = () => {
           <tr>
             <th className="py-2 px-4 border-b">Name</th>
             <th className="py-2 px-4 border-b">Description</th>
-            <th className="py-2 px-4 border-b">Quantity</th>
             <th className="py-2 px-4 border-b">Parts</th>
           </tr>
         </thead>
@@ -276,11 +294,11 @@ const Components: React.FC = () => {
             <tr key={index} className="hover:bg-gray-100">
               <td className="py-2 px-4 border-b">{component.name}</td>
               <td className="py-2 px-4 border-b">{component.description}</td>
-              <td className="py-2 px-4 border-b">{component.quantity}</td>
               <td className="py-2 px-4 border-b">
                 {component.parts.map((part, index) => (
                   <div key={index} className="text-sm text-gray-600">
-                    {part.name} - {part.description} (Qty: {part.quantity})
+                    {part.name} - {part.description} (Qty:{" "}
+                    {component.quantity[index]})
                   </div>
                 ))}
               </td>
