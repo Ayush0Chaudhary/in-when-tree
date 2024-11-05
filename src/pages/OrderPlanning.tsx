@@ -8,9 +8,9 @@ const NextFiveWeeksPlanning: React.FC = () => {
   }>({});
   const [parts, setParts] = useState<Part[]>([]);
   const [planGrid, setPlanGrid] = useState<{ [key: string]: number }[]>([]);
+  const [feasibilityGrid, setFeasibilityGrid] = useState<any[]>([]);
 
   useEffect(() => {
-    console.log("Plan grid:", planGrid);
     const storedOrders = localStorage.getItem("orders");
     if (storedOrders) {
       try {
@@ -30,34 +30,32 @@ const NextFiveWeeksPlanning: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (orders.length > 0) {
-      generatePlanGrid();
-    }
+    if (orders.length > 0) generatePlanGrid();
   }, [orders]);
 
   useEffect(() => {
-    if (parts.length > 0) {
-      generateInitialPartQuantities();
-    }
+    if (parts.length > 0) generateInitialPartQuantities();
   }, [parts]);
+
+  useEffect(() => {
+    if (orders.length > 0 && parts.length > 0) {
+      checkCellFeasibility();
+    }
+  }, [orders, parts, planGrid]);
 
   const generatePlanGrid = () => {
     const grid: { [key: string]: number }[] = [];
-
     for (let i = 0; i < 5; i++) {
       const week: { [key: string]: number } = {};
       orders.forEach((order) => {
-        // Initialize the first week with the entire quantity
-        week[`${order.id}-week${i + 1}`] = i === 0 ? order.quantity : 0;
+        week[`${order.id}-week${i + 1}`] = 0;
       });
       grid.push(week);
     }
-
     setPlanGrid(grid);
   };
 
   const generateInitialPartQuantities = () => {
-    console.log("PARTS -> ", parts);
     const quantities: { [key: number]: number } = {};
     parts.forEach((part) => {
       quantities[part.id] = part.totalQuantity;
@@ -72,69 +70,111 @@ const NextFiveWeeksPlanning: React.FC = () => {
   ) => {
     const updatedGrid = [...planGrid];
     const gridKey = `${orders[orderIndex].id}-week${weekIndex + 1}`;
-    // const oldValue = updatedGrid[weekIndex][gridKey];
+    const oldValue = updatedGrid[weekIndex][gridKey] || 0;
     updatedGrid[weekIndex][gridKey] = quantity;
+
+    // const updatedQuantities = { ...partQuantities };
+    // orders[orderIndex].component.parts.forEach((part, partIndex) => {
+    //   const partUsage =
+    //     (quantity - oldValue) *
+    //     orders[orderIndex].component.quantity[partIndex];
+    //   updatedQuantities[part.id] -= partUsage;
+    // });
+
     setPlanGrid(updatedGrid);
-
-    // Reset part quantities
-    const partQuants = { ...partQuantities };
-    orders[orderIndex].component.parts.forEach((part, partIndex) => {
-      const partRequirement =
-        quantity * orders[orderIndex].component.quantity[partIndex];
-      partQuants[part.id] -= partRequirement;
-    });
-
-    setPartQuantities(partQuants);
-
-    // Re-check feasibility after updates
-    checkCellFeasibility(weekIndex, orders[orderIndex]);
-    checkWeekFeasibility(weekIndex);
+    // setPartQuantities(updatedQuantities);
   };
 
-  const checkWeekFeasibility = (weekIndex: number): boolean => {
-    orders.forEach((order) => {
-      console.log("WEEK  -> ", partQuantities);
-      const gridKey = `${order.id}-week${weekIndex + 1}`;
-      const weeklyQuantity = planGrid[weekIndex]?.[gridKey] ?? 0;
+  const checkCellFeasibility = () => {
+    console.log("partQuantities", partQuantities);
 
-      order.component.parts.forEach((part, partIndex) => {
-        const partRequirement =
-          weeklyQuantity * order.component.quantity[partIndex];
+    const feasibleGrid = orders.map((order, orderindex) => {
+      let remainingQuantity = order.quantity;
 
-        if (!partQuantities[part.id]) {
-          partQuantities[part.id] = 0;
+      return Array.from({ length: 5 }, (_, weekIndex) => {
+        let previousOrdersPartRequired: { [key: number]: number } = {};
+
+        parts.forEach((part) => {
+          previousOrdersPartRequired[part.id] = 0;
+        });
+
+        for (let i = 0; i < orderindex; i++) {
+          const previousOrder = orders[i];
+          previousOrder.component.parts.forEach((part, partIndex) => {
+            previousOrdersPartRequired[part.id] +=
+              previousOrder.component.quantity[partIndex] *
+              (planGrid[weekIndex]?.[
+                `${previousOrder.id}-week${weekIndex + 1}`
+              ] || 0);
+          });
         }
-        partQuantities[part.id] += partRequirement;
+
+        for (let i = 0; i < weekIndex; i++) {
+          orders.forEach((order) => {
+            order.component.parts.forEach((part, partIndex) => {
+              previousOrdersPartRequired[part.id] +=
+                order.component.quantity[partIndex] *
+                (planGrid[i]?.[`${order.id}-week${i + 1}`] || 0);
+            });
+          });
+        }
+
+        console.log(
+          `previousOrdersPartRequired ${orderindex} , ${weekIndex}-> `,
+          previousOrdersPartRequired
+        );
+
+        const gridKey = `${order.id}-week${weekIndex + 1}`;
+        const weekQuantity = planGrid[weekIndex]?.[gridKey] || 0;
+        remainingQuantity -= weekQuantity;
+
+        const isFeasible = order.component.parts.every((part, partIndex) => {
+          const prevOrdersRequired = previousOrdersPartRequired[part.id] || 0;
+
+          console.log(prevOrdersRequired);
+          const required =
+            weekQuantity * order.component.quantity[partIndex] +
+            prevOrdersRequired;
+
+          return partQuantities[part.id] >= required;
+        });
+
+        return {
+          editable:
+            weekIndex === 0 ? true : remainingQuantity >= 0 && isFeasible,
+          color: remainingQuantity >= 0 && isFeasible ? "green" : "red",
+          maxQuantity: weekIndex === 0 ? order.quantity : remainingQuantity,
+        };
       });
     });
-
-    return orders.every((order) =>
-      order.component.parts.every(
-        (part) => partQuantities[part.id] <= part.totalQuantity
-      )
-    );
+    setFeasibilityGrid(feasibleGrid);
   };
 
-  const checkCellFeasibility = (weekIndex: number, order: Order): boolean => {
-    console.log(partQuantities);
-
+  const renderCell = (order: Order, orderIndex: number, weekIndex: number) => {
     const gridKey = `${order.id}-week${weekIndex + 1}`;
-    const weeklyQuantity = planGrid[weekIndex]?.[gridKey] ?? 0;
-
-    var answer: boolean = true;
-
-    order.component.parts.forEach((part, partIndex) => {
-      const partRequirement =
-        weeklyQuantity * order.component.quantity[partIndex];
-
-      if (!partQuantities[part.id]) {
-        partQuantities[part.id] = 0;
-      }
-      if (partQuantities[part.id] + partRequirement > part.totalQuantity) {
-        answer = false;
-      }
-    });
-    return answer;
+    const feasibility = feasibilityGrid[orderIndex]?.[weekIndex] || {
+      editable: false,
+      maxQuantity: 0,
+    };
+    return (
+      <td
+        key={gridKey}
+        className={`py-2 px-4 border-b ${
+          feasibility.color === "green" ? "bg-green-200" : "bg-red-200"
+        }`}
+      >
+        <input
+          type="number"
+          className="input w-full px-3 py-2 border border-gray-300 rounded bg-transparent text-black"
+          value={planGrid[weekIndex]?.[gridKey] ?? 0}
+          onChange={(e) =>
+            handleUpdateQuantity(orderIndex, weekIndex, Number(e.target.value))
+          }
+          disabled={!feasibility.editable}
+          max={feasibility.maxQuantity}
+        />
+      </td>
+    );
   };
 
   return (
@@ -163,38 +203,9 @@ const NextFiveWeeksPlanning: React.FC = () => {
               <td className="py-2 px-4 border-b">
                 {order.component.name} - {order.quantity}
               </td>
-              {Array.from({ length: 5 }, (_, weekIndex) => (
-                <td
-                  key={`${order.id}-week${weekIndex + 1}`}
-                  className={`py-2 px-4 border-b ${
-                    checkCellFeasibility(weekIndex, order)
-                      ? "bg-green-200"
-                      : "bg-red-200"
-                  }`}
-                >
-                  <input
-                    type="number"
-                    className="input w-full px-3 py-2 border border-gray-300 rounded bg-transparent text-black"
-                    value={
-                      planGrid[weekIndex]?.[
-                        `${order.id}-week${weekIndex + 1}`
-                      ] ?? 0 // Default to 0 if value is undefined
-                    }
-                    onChange={(e) =>
-                      handleUpdateQuantity(
-                        orderIndex,
-                        weekIndex,
-                        Number(e.target.value)
-                      )
-                    }
-                    disabled={
-                      weekIndex === 0
-                        ? false
-                        : !checkWeekFeasibility(weekIndex - 1)
-                    }
-                  />
-                </td>
-              ))}
+              {Array.from({ length: 5 }).map((_, weekIndex) =>
+                renderCell(order, orderIndex, weekIndex)
+              )}
             </tr>
           ))}
         </tbody>
