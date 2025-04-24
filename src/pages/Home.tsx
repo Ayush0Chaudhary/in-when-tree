@@ -5,6 +5,7 @@ import Orders from "./Orders";
 import Components from "./Component";
 import Parts from "./Parts";
 import OrderPlanning from "./OrderPlanning";
+import Vision from "./Vision";
 
 const Home: React.FC = () => {
   return (
@@ -35,6 +36,12 @@ const Home: React.FC = () => {
           >
             Plan
           </TabsTrigger>
+          <TabsTrigger
+            value="vision"
+            className="bg-white hover:bg-gray-200 data-[state=active]:bg-gray-300 text-black px-4 py-2 rounded-md"
+          >
+            Vision
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="parts">
           <Parts></Parts>
@@ -47,6 +54,9 @@ const Home: React.FC = () => {
         </TabsContent>
         <TabsContent value="plan">
           <OrderPlanning></OrderPlanning>
+        </TabsContent>
+        <TabsContent value="vision">
+          <Vision></Vision>
         </TabsContent>
         <TabsContent value="password">Change your password here.</TabsContent>
       </Tabs>
