@@ -1,12 +1,15 @@
-import React, { useState } from "react";
 
+import { Part } from "@/lib/models";
+import React, { useState, useEffect } from "react";
 const Vision: React.FC = () => {
-  const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [annotatedImage, setAnnotatedImage] = useState<string | null>(null);
-  const [boxCount, setBoxCount] = useState(0);
-  const [manualCount, setManualCount] = useState(0);
-  const [loading, setLoading] = useState(false);
+const [image, setImage] = useState<File | null>(null);
+const [preview, setPreview] = useState<string | null>(null);
+const [annotatedImage, setAnnotatedImage] = useState<string | null>(null);
+const [boxCount, setBoxCount] = useState(0);
+const [manualCount, setManualCount] = useState(0);
+const [loading, setLoading] = useState(false);
+const [selectedPartId, setSelectedPartId] = useState<number>(-1);
+const [selectedPartQuantity, setSelectedPartQuantity] = useState<number>(0);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -15,6 +18,35 @@ const Vision: React.FC = () => {
       setPreview(URL.createObjectURL(file));
       setAnnotatedImage(null);
     }
+  };
+
+  useEffect(() => {
+      fetchParts();
+      // try {
+      //   updateComponentInfo();
+      // } catch (error) {
+      //   console.error("Error updating component info:", error);
+      //   alert("Failed to update component info. Please try again.");
+      // }
+    }, []);
+const [partsLoading, setPartsLoading] = useState(false);
+const [partsError, setPartsError] = useState<string | null>(null);
+const [parts, setParts] = useState<Part[]>([]);
+
+  const fetchParts = async () => {
+    setPartsLoading(true);
+    setPartsError(null);
+
+    const storedParts = localStorage.getItem("parts");
+    if (storedParts) {
+      try {
+        setParts(JSON.parse(storedParts));
+      } catch (error) {
+        console.error("Error parsing stored parts:", error);
+        setParts([]);
+      }
+    }
+    setPartsLoading(false);
   };
 
   const drawBoxesOnImage = async (imageUrl: string, predictions: any[]) => {
@@ -146,6 +178,25 @@ const Vision: React.FC = () => {
 
         <div className="mt-4">
           <h3 className="font-medium">Boxes Detected: {boxCount}</h3>
+        </div>
+        <div>
+            <label className="block text-sm font-medium text-gray-700">
+            Select Part
+            </label>
+            <select
+            className="input w-full px-3 py-2 border border-gray-300 rounded bg-white"
+            value={selectedPartId}
+            onChange={(e) =>
+                setSelectedPartId(Number(e.target.value))
+            }
+            >
+            <option value="">Select a part...</option>
+            {parts.map((part) => (
+                <option key={part.id} value={part.id}>
+                {part.name} - {part.description}
+                </option>
+            ))}
+            </select>
         </div>
       </div>
     </div>
