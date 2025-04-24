@@ -1,15 +1,21 @@
-
 import { Part } from "@/lib/models";
 import React, { useState, useEffect } from "react";
 const Vision: React.FC = () => {
-const [image, setImage] = useState<File | null>(null);
-const [preview, setPreview] = useState<string | null>(null);
-const [annotatedImage, setAnnotatedImage] = useState<string | null>(null);
-const [boxCount, setBoxCount] = useState(0);
-const [manualCount, setManualCount] = useState(0);
-const [loading, setLoading] = useState(false);
-const [selectedPartId, setSelectedPartId] = useState<number>(-1);
-const [selectedPartQuantity, setSelectedPartQuantity] = useState<number>(0);
+  const [image, setImage] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [annotatedImage, setAnnotatedImage] = useState<string | null>(null);
+  const [boxCount, setBoxCount] = useState(0);
+  const [manualCount, setManualCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [selectedPartId, setSelectedPartId] = useState<number>(-1);
+  const [selectedPartQuantity, setSelectedPartQuantity] = useState<number>(0);
+  const [editingPart, setEditingPart] = useState<Part | null>(null);
+  const [newPart, setNewPart] = useState<Part>({
+    id: Math.random(),
+    name: "",
+    description: "",
+    totalQuantity: 0,
+  });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -21,17 +27,44 @@ const [selectedPartQuantity, setSelectedPartQuantity] = useState<number>(0);
   };
 
   useEffect(() => {
-      fetchParts();
-      // try {
-      //   updateComponentInfo();
-      // } catch (error) {
-      //   console.error("Error updating component info:", error);
-      //   alert("Failed to update component info. Please try again.");
-      // }
-    }, []);
-const [partsLoading, setPartsLoading] = useState(false);
-const [partsError, setPartsError] = useState<string | null>(null);
-const [parts, setParts] = useState<Part[]>([]);
+    fetchParts();
+    // try {
+    //   updateComponentInfo();
+    // } catch (error) {
+    //   console.error("Error updating component info:", error);
+    //   alert("Failed to update component info. Please try again.");
+    // }
+  }, []);
+
+  const handleAddPart = () => {
+    if (
+      newPart.name.trim() === "" ||
+      newPart.description.trim() === "" ||
+      newPart.totalQuantity <= 0
+    ) {
+      alert("All fields are required.");
+      return;
+    }
+
+    const updatedParts = editingPart
+      ? parts.map((part) => (part.id === editingPart.id ? newPart : part))
+      : [...parts, newPart];
+
+    setParts(updatedParts);
+    localStorage.setItem("parts", JSON.stringify(updatedParts));
+
+    setEditingPart(null);
+    setNewPart({
+      id: Math.random(),
+      name: "",
+      description: "",
+      totalQuantity: 0,
+    });
+  };
+
+  const [partsLoading, setPartsLoading] = useState(false);
+  const [partsError, setPartsError] = useState<string | null>(null);
+  const [parts, setParts] = useState<Part[]>([]);
 
   const fetchParts = async () => {
     setPartsLoading(true);
@@ -47,6 +80,27 @@ const [parts, setParts] = useState<Part[]>([]);
       }
     }
     setPartsLoading(false);
+  };
+
+  const handleAddToSelectedPart = () => {
+    if (selectedPartId === -1) {
+      alert("Please select a part.");
+      return;
+    }
+
+    const updatedParts = parts.map((part) => {
+      if (part.id === selectedPartId) {
+        return {
+          ...part,
+          totalQuantity: part.totalQuantity + manualCount,
+        };
+      }
+      return part;
+    });
+
+    setParts(updatedParts);
+    localStorage.setItem("parts", JSON.stringify(updatedParts));
+    alert("Part quantity updated successfully.");
   };
 
   const drawBoxesOnImage = async (imageUrl: string, predictions: any[]) => {
@@ -177,27 +231,44 @@ const [parts, setParts] = useState<Part[]>([]);
         )}
 
         <div className="mt-4">
-          <h3 className="font-medium">Boxes Detected: {boxCount}</h3>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Boxes Detected: {boxCount}
+          </label>
+          <input
+            type="number"
+            value={manualCount}
+            onChange={(e) => setManualCount(Number(e.target.value))}
+            className="w-32 px-2 py-1 border border-gray-300 rounded text-black bg-white"
+            min={0}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            You can manually edit the count before submitting.
+          </p>
         </div>
         <div>
-            <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700">
             Select Part
-            </label>
-            <select
+          </label>
+          <select
             className="input w-full px-3 py-2 border border-gray-300 rounded bg-white"
             value={selectedPartId}
-            onChange={(e) =>
-                setSelectedPartId(Number(e.target.value))
-            }
-            >
+            onChange={(e) => setSelectedPartId(Number(e.target.value))}
+          >
             <option value="">Select a part...</option>
             {parts.map((part) => (
-                <option key={part.id} value={part.id}>
+              <option key={part.id} value={part.id}>
                 {part.name} - {part.description}
-                </option>
+              </option>
             ))}
-            </select>
+          </select>
         </div>
+
+        <button
+          className="mt-2 p-2 bg-green-600 text-white rounded"
+          onClick={handleAddToSelectedPart}
+        >
+          Add Count to Selected Part
+        </button>
       </div>
     </div>
   );
